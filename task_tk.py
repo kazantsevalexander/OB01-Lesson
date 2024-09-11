@@ -1,21 +1,4 @@
-# Менеджер задач
-# Задача: Создай класс Task, который позволяет управлять задачами (делами).
-# У задачи должны быть атрибуты: описание задачи, срок выполнения и статус
-# (выполнено/не выполнено). Реализуй функцию для добавления задач, отметки
-# выполненных задач и вывода списка текущих (не выполненных) задач.
 import tkinter as tk
-
-class Task():
-    def __init__(self, description, deadline, status=False):
-        self.description = description
-        self.deadline = deadline
-        self.status = status
-
-    def make(self):
-        self.status = True
-
-    def dontmake(self):
-        self.status = False
 
 def add_task(): #функция добавления задачи
     task = task_free.get()
@@ -96,4 +79,3 @@ btn_todo = tk.Button(root, text="Удалить", bg="LightCyan2", font="Arial 1
 btn_todo.grid(row=4, column=4, pady=20, ipadx=10, ipady=4)
 
 root.mainloop()
-
