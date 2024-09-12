@@ -1,99 +1,94 @@
-# Менеджер задач
-# Задача: Создай класс Task, который позволяет управлять задачами (делами).
-# У задачи должны быть атрибуты: описание задачи, срок выполнения и статус
-# (выполнено/не выполнено). Реализуй функцию для добавления задач, отметки
-# выполненных задач и вывода списка текущих (не выполненных) задач.
 import tkinter as tk
 
+# Списки задач (Python-списки для хранения объектов Task)
+tasks_incomplete = []
+tasks_complete = []
+
 class Task():
-    def __init__(self, description, deadline, status=False):
+    def __init__(self, description, data, status=False):
         self.description = description
-        self.deadline = deadline
+        self.data = data
         self.status = status
 
-    def make(self):
+    def __str__(self):
+        return f"Задача: {self.description}. Дата: {self.data}"
+
+    def newTask(self):
+        tasks_incomplete.append(self)
+
+    def makeTask(self):
         self.status = True
+        tasks_complete.append(self)
+        tasks_incomplete.remove(self)
 
-    def dontmake(self):
-        self.status = False
+def add_task():
+    task_new = task_free.get()
+    data_new = task_data_free.get()
 
-def add_task(): #функция добавления задачи
-    task = task_free.get()
-    if task:
-        list_todo.insert(0, task)
+    if task_new and data_new:  # Проверяем, что поля не пустые
+        task = Task(task_new, data_new)
+        task.newTask()
+
+        # Добавляем задачу в Listbox для отображения
+        listbox_incomplete.insert(0, str(task))
+
+        # Очищаем поля ввода
         task_free.delete(0, tk.END)
-
-def del_task(): #удаление выбранной задачи
-    task_status = [list_todo, list_doing, list_done]
-    for task_list in task_status:
-        selected_task = task_list.curselection()
-        if selected_task:
-            task_list.delete(selected_task)
-            break
+        task_data_free.delete(0, tk.END)
 
 def move_task_doing():
-    selected_index_todo = list_todo.curselection()
-    selected_index_done = list_done.curselection()
-    if selected_index_todo:
-        selected_task_todo = list_todo.get(selected_index_todo)
-        list_todo.delete(selected_index_todo)
-        list_doing.insert(0, selected_task_todo)
-    elif selected_index_done:
-        selected_task_done = list_done.get(selected_index_done)
-        list_done.delete(selected_index_done)
-        list_doing.insert(0, selected_task_done)
+    selected_index = listbox_incomplete.curselection()
+    if selected_index:  # Проверяем, что что-то выбрано
+        # Получаем индекс выбранной задачи
+        index = selected_index[0]
+        task = tasks_incomplete[index]
 
-def move_task_done():
-    selected_index_todo = list_todo.curselection()
-    selected_index_doing = list_doing.curselection()
-    if selected_index_todo:
-        selected_task_todo = list_todo.get(selected_index_todo)
-        list_todo.delete(selected_index_todo)
-        list_done.insert(0, selected_task_todo)
-    elif selected_index_doing:
-        selected_task_doing = list_doing.get(selected_index_doing)
-        list_doing.delete(selected_index_doing)
-        list_done.insert(0, selected_task_doing)
+        # Перемещаем задачу в выполненные
+        task.makeTask()
+
+        # Обновляем виджеты Listbox
+        listbox_incomplete.delete(index)
+        listbox_complete.insert(0, str(task))
 
 root = tk.Tk()
 root.title("Мой менеджер задач")
 root.config(bg="AntiqueWhite2")
+root.geometry("1000x600")
 
 label_free = tk.Label(root, text="Задача:", bg="AntiqueWhite2", font="Arial 16")
-label_free.grid(row=0, column=0, sticky="ew", padx=10, pady=30)
+label_free.grid(row=0, column=0, sticky="ew", padx=10, pady=10)
 
-task_free = tk.Entry(root, width=40)
-task_free.grid(row=0, column=2, sticky="ew", columnspan=2, pady=30)
+label_data_free = tk.Label(root, text="Дата:", bg="AntiqueWhite2", font="Arial 16")
+label_data_free.grid(row=1, column=0, sticky="ew", padx=10, pady=0)
 
-btn_add = tk.Button(root, text="В список дел", font="Arial 14", bg="lightblue", fg="black", command=add_task)
-btn_add.grid(row=0, column=4, sticky="w")
+task_free = tk.Entry(root, width=80)
+task_free.grid(row=0, column=2, sticky="ew", columnspan=2, pady=0)
 
+task_data_free = tk.Entry(root, width=40)
+task_data_free.grid(row=1, column=2, sticky="ew", columnspan=2, pady=0)
+
+# Кнопка для добавления задачи
+btn_add = tk.Button(root, text="В список дел", font="Arial 14", bg="lightblue", fg="black", height=2, command=add_task)
+btn_add.grid(row=0, column=4, rowspan=2, sticky="ns")
+
+# Метка для невыполненных задач
 label_todo = tk.Label(root, text="Список дел", bg="AntiqueWhite2", width=14, font="Arial 14")
 label_todo.grid(row=2, column=2, sticky="ew")
 
-list_todo = tk.Listbox(root, width=15, height=10, bg="AntiqueWhite3", bd=2, relief="sunken")
-list_todo.grid(row=3, column=2, padx=25)
+# Listbox для невыполненных задач
+listbox_incomplete = tk.Listbox(root, width=35, height=20, bg="AntiqueWhite3", bd=2, relief="sunken")
+listbox_incomplete.grid(row=3, column=2, padx=25)
 
-label_doing = tk.Label(root, text="В работе", bg="AntiqueWhite2", width=14, font="Arial 14")
-label_doing.grid(row=2, column=3, sticky="ew")
-
-list_doing = tk.Listbox(root, width=15, height=10, bg="AntiqueWhite3", bd=2, relief="sunken")
-list_doing.grid(row=3, column=3, padx=25)
-
+# Метка для выполненных задач
 label_done = tk.Label(root, text="Сделано", bg="AntiqueWhite2", width=14, font="Arial 14")
-label_done.grid(row=2, column=4, sticky="ew")
+label_done.grid(row=2, column=3, sticky="ew")
 
-list_done = tk.Listbox(root, width=15, height=10, bg="AntiqueWhite3", bd=2, relief="sunken")
-list_done.grid(row=3, column=4, padx=25)
+# Listbox для выполненных задач
+listbox_complete = tk.Listbox(root, width=35, height=20, bg="AntiqueWhite3", bd=2, relief="sunken")
+listbox_complete.grid(row=3, column=3, padx=25)
 
-btn_todo = tk.Button(root, text="В работу", bg="LightCyan2", font="Arial 14", command=move_task_doing)
-btn_todo.grid(row=4, column=2, pady=20, ipadx=10, ipady=4)
-
-btn_todo = tk.Button(root, text="Сделано", bg="LightCyan2", font="Arial 14", command=move_task_done)
-btn_todo.grid(row=4, column=3, pady=30, ipadx=10, ipady=4)
-
-btn_todo = tk.Button(root, text="Удалить", bg="LightCyan2", font="Arial 14", command=del_task)
-btn_todo.grid(row=4, column=4, pady=20, ipadx=10, ipady=4)
+# Кнопка для перемещения задач в "В работе"
+btn_move = tk.Button(root, text="Выполнить", bg="LightCyan2", font="Arial 14", command=move_task_doing)
+btn_move.grid(row=4, column=2, pady=20, ipadx=10, ipady=4)
 
 root.mainloop()
-
